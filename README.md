@@ -14,6 +14,10 @@ I use another tool called [stipplegen](https://github.com/evil-mad/stipplegen/) 
 
 The cool thing about using stipplegen is that you can then print this final design on a pen plotter.
 
+Or you can use it to create a realistic glass frog pattern.
+
+![Frogo](./assets/frogo.png)
+
 ## Features
 
 - Generates a specified number of dots within a defined width and height.
