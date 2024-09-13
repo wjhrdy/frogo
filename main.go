@@ -174,7 +174,7 @@ func writeStippledImage() {
 	dc.SetRGB(0, 0, 0)
 
 	// Parameters for Poisson Disk Sampling
-	minDist := 5.0 // Minimum distance between points
+	minDist := 8.0 // Increased from 5.0 to 8.0
 	k := 30        // Limit of samples before rejection
 
 	// Generate points using Poisson Disk Sampling
@@ -192,6 +192,7 @@ func writeStippledImage() {
 		// Determine the dot radius based on brightness (darker areas get larger dots)
 		maxRadius := minDist / 2
 		dotRadius := (255 - float64(brightness)) / 255 * maxRadius
+		dotRadius *= 0.8 // Reduce the radius to 90% of its original size
 
 		if dotRadius > 0 {
 			dc.DrawCircle(p.X, p.Y, dotRadius)
@@ -322,7 +323,7 @@ func writeStippledSVG() {
 	svgFile.WriteString(`<rect width="100%" height="100%" fill="white"/>`)
 
 	// Parameters for Poisson Disk Sampling
-	minDist := 5.0 // Minimum distance between points
+	minDist := 8.0 // Increased from 5.0 to 8.0
 	k := 30        // Limit of samples before rejection
 
 	// Generate points using Poisson Disk Sampling
@@ -340,6 +341,7 @@ func writeStippledSVG() {
 		// Determine the dot radius based on brightness (darker areas get larger dots)
 		maxRadius := minDist / 2
 		dotRadius := (255 - float64(brightness)) / 255 * maxRadius
+		dotRadius *= 0.9 // Reduce the radius to 90% of its original size
 
 		if dotRadius > 0 {
 			// Write a circle element for each dot
