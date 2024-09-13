@@ -21,7 +21,10 @@ const (
 )
 
 type Dot struct {
-	x, y float64
+	x, y           float64
+	radius         float64
+	xScale, yScale float64
+	rotation       float64 // New field for rotation
 }
 
 func main() {
@@ -30,8 +33,12 @@ func main() {
 	dots := make([]Dot, numDots)
 	for i := range dots {
 		dots[i] = Dot{
-			x: rand.Float64() * width,
-			y: rand.Float64() * height,
+			x:        rand.Float64() * width,
+			y:        rand.Float64() * height,
+			radius:   dotRadius * (0.8 + rand.Float64()*0.4), // Updated this line
+			xScale:   0.9 + rand.Float64()*0.2,
+			yScale:   0.9 + rand.Float64()*0.2,
+			rotation: rand.Float64() * 2 * math.Pi, // Random rotation between 0 and 2π
 		}
 	}
 
@@ -85,9 +92,9 @@ func applyForces(dots []Dot) {
 			}
 		}
 
-		// Keep within bounds
-		dots[i].x = math.Max(dotRadius, math.Min(width-dotRadius, dots[i].x))
-		dots[i].y = math.Max(dotRadius, math.Min(height-dotRadius, dots[i].y))
+		// Keep within bounds (adjusted for variable radius)
+		dots[i].x = math.Max(dots[i].radius, math.Min(width-dots[i].radius, dots[i].x))
+		dots[i].y = math.Max(dots[i].radius, math.Min(height-dots[i].radius, dots[i].y))
 	}
 }
 
@@ -98,7 +105,11 @@ func writeSVG(file *os.File, dots []Dot) {
 	// Remove the line drawing code
 
 	for _, dot := range dots {
-		file.WriteString(fmt.Sprintf(`<circle cx="%f" cy="%f" r="%d" fill="white"/>`, dot.x, dot.y, dotRadius))
+		file.WriteString(fmt.Sprintf(`<g transform="rotate(%f %f %f)">`,
+			dot.rotation*180/math.Pi, dot.x, dot.y))
+		file.WriteString(fmt.Sprintf(`<ellipse cx="%f" cy="%f" rx="%f" ry="%f" fill="white"/>`,
+			dot.x, dot.y, dot.radius*dot.xScale, dot.radius*dot.yScale))
+		file.WriteString(`</g>`)
 	}
 
 	file.WriteString(`</svg>`)
@@ -114,8 +125,12 @@ func writePNG(dots []Dot) {
 	// Draw white dots
 	dc.SetRGB(1, 1, 1)
 	for _, dot := range dots {
-		dc.DrawCircle(dot.x, dot.y, dotRadius)
+		dc.Push()
+		dc.Translate(dot.x, dot.y)
+		dc.Rotate(dot.rotation)
+		dc.DrawEllipse(0, 0, dot.radius*dot.xScale, dot.radius*dot.yScale)
 		dc.Fill()
+		dc.Pop()
 	}
 
 	dc.SavePNG("output.png")
