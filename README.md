@@ -12,9 +12,11 @@ This tool only gives you 2 stages to create this effect.
 
 The first stage is to generate the dots and apply forces to them to create a visually appealing distribution.
 The second stage approximates the dots with stipples to create a realistic glass frog pattern.
+You can use the second stage to create a realistic glass frog patterns.
+
+![Frogo](./assets/frogo.svg)
 
 Another tool called [stipplegen](https://github.com/evil-mad/stipplegen/) can be used to generate the final output from the first stage.
-
 The cool thing about using stipplegen is that you can then draw this final design on a pen plotter.
 
 ## Features
