@@ -29,6 +29,7 @@ Or you can use it to create a realistic glass frog pattern.
 - Applies forces to the dots to achieve an ideal spacing.
 - Saves the output as an SVG file.
 - Converts the SVG file to a PNG format.
+- Approximates the dots with stipples to create a realistic glass frog pattern.
 
 ## Installation
 
