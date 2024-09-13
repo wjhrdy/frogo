@@ -185,10 +185,11 @@ func poissonDiskSampling(width, height int, minDist float64, k int) []vec2 {
 			if newX >= 0 && newX < float64(width) && newY >= 0 && newY < float64(height) {
 				// Calculate distance from center line
 				distFromCenter := math.Abs(newY - float64(height)/2)
-				densityFactor := distFromCenter / (float64(height) / 2)
+				densityFactor := distFromCenter / (float64(height) / 1.5)
 
 				// Adjust minDist based on density factor
-				adjustedMinDist := minDist * (1 + densityFactor)
+				// Decrease the minimum distance near the center
+				adjustedMinDist := minDist * (0.7 + densityFactor)
 
 				gx = int(newX / cellSize)
 				gy = int(newY / cellSize)
@@ -264,14 +265,14 @@ func writeStippledSVG() {
 	svgFile.WriteString(`<rect width="100%" height="100%" fill="white"/>`)
 
 	// Parameters for Poisson Disk Sampling
-	minDist := 8.0
+	minDist := 8.0 // Further decreased from 7.0
 	k := 30
 
 	// Generate points using Poisson Disk Sampling
 	points := poissonDiskSampling(width, height, minDist, k)
 
 	// Constant dot size
-	dotRadius := minDist / 4
+	dotRadius := minDist / 4.5 // Decreased from 4
 
 	// For each point, determine whether to draw a dot based on image brightness
 	for _, p := range points {
@@ -282,8 +283,11 @@ func writeStippledSVG() {
 		grayColor := color.GrayModel.Convert(img.At(x, y)).(color.Gray)
 		brightness := float64(grayColor.Y) / 255
 
-		// Only draw the dot if a random number is greater than the brightness
-		if rand.Float64() > brightness {
+		// Adjust the threshold for drawing dots
+		distFromCenter := math.Abs(float64(y)-float64(height)/2) / (float64(height) / 2)
+		densityFactor := 1.3 - 0.6*distFromCenter // Higher density in the center
+
+		if rand.Float64() > brightness*densityFactor {
 			// Generate random rotation and scaling factors
 			rotation := rand.Float64() * 2 * math.Pi
 			xScale := 0.9 + rand.Float64()*0.2

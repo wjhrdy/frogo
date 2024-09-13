@@ -15,13 +15,7 @@ The second stage approximates the dots with stipples to create a realistic glass
 
 Another tool called [stipplegen](https://github.com/evil-mad/stipplegen/) can be used to generate the final output from the first stage.
 
-![Stipplegen output](./assets/frogo_filled.jpg)
-
 The cool thing about using stipplegen is that you can then draw this final design on a pen plotter.
-
-Or you can use it to create a realistic glass frog pattern.
-
-![Frogo](./assets/frogo.png)
 
 ## Features
 
