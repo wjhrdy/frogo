@@ -1,6 +1,18 @@
 # Frogo
 
-Frogo is a Go-based application that generates a set of dots and applies forces to them to create a visually appealing distribution. The final output is saved as an SVG file, and a PNG conversion is also provided.
+Frogo is a Go-based application that generates a set of dots and applies forces to them to create a visually appealing distribution. The final output is saved as an SVG file, and a PNG conversion is also provided. I created this to mimic the effect of a glass frog.
+
+![Frogo](./assets/glassfrog.jpg)
+
+This tool only gives you the first stage to create this effect.
+
+![Frogo](./assets/output.png)
+
+I use another tool called [stipplegen](https://github.com/evil-mad/stipplegen/) to generate the final output.
+
+![Stipplegen output](./assets/frogo_filled.jpg)
+
+The cool thing about using stipplegen is that you can then print this final design on a pen plotter.
 
 ## Features
 
