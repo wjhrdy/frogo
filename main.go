@@ -172,25 +172,28 @@ func poissonDiskSampling(width, height int, minDist float64, k int) []vec2 {
 	grid[gx][gy] = &p
 
 	for len(processList) > 0 {
-		// Randomly select a point from the process list
 		idx := rand.Intn(len(processList))
 		p := processList[idx]
 		found := false
 
 		for i := 0; i < k; i++ {
-			// Generate a random point in the annulus between minDist and 2*minDist
 			angle := rand.Float64() * 2 * math.Pi
 			radius := minDist + rand.Float64()*minDist
 			newX := p.X + radius*math.Cos(angle)
 			newY := p.Y + radius*math.Sin(angle)
-			newPoint := vec2{newX, newY}
 
 			if newX >= 0 && newX < float64(width) && newY >= 0 && newY < float64(height) {
+				// Calculate distance from center line
+				distFromCenter := math.Abs(newY - float64(height)/2)
+				densityFactor := distFromCenter / (float64(height) / 2)
+
+				// Adjust minDist based on density factor
+				adjustedMinDist := minDist * (1 + densityFactor)
+
 				gx = int(newX / cellSize)
 				gy = int(newY / cellSize)
 
 				tooClose := false
-				// Check neighboring cells for points that are too close
 				for i := -2; i <= 2; i++ {
 					for j := -2; j <= 2; j++ {
 						nx := gx + i
@@ -200,7 +203,7 @@ func poissonDiskSampling(width, height int, minDist float64, k int) []vec2 {
 							if neighbor != nil {
 								dx := neighbor.X - newX
 								dy := neighbor.Y - newY
-								if dx*dx+dy*dy < minDist*minDist {
+								if dx*dx+dy*dy < adjustedMinDist*adjustedMinDist {
 									tooClose = true
 									break
 								}
@@ -212,6 +215,7 @@ func poissonDiskSampling(width, height int, minDist float64, k int) []vec2 {
 					}
 				}
 				if !tooClose {
+					newPoint := vec2{newX, newY}
 					processList = append(processList, newPoint)
 					points = append(points, newPoint)
 					grid[gx][gy] = &newPoint
@@ -221,7 +225,6 @@ func poissonDiskSampling(width, height int, minDist float64, k int) []vec2 {
 		}
 
 		if !found {
-			// Remove p from processList
 			processList = append(processList[:idx], processList[idx+1:]...)
 		}
 	}
@@ -267,20 +270,20 @@ func writeStippledSVG() {
 	// Generate points using Poisson Disk Sampling
 	points := poissonDiskSampling(width, height, minDist, k)
 
-	// For each point, determine the dot radius based on image brightness
+	// Constant dot size
+	dotRadius := minDist / 4
+
+	// For each point, determine whether to draw a dot based on image brightness
 	for _, p := range points {
 		x, y := int(p.X), int(p.Y)
 		if x < bounds.Min.X || x >= bounds.Max.X || y < bounds.Min.Y || y >= bounds.Max.Y {
 			continue
 		}
 		grayColor := color.GrayModel.Convert(img.At(x, y)).(color.Gray)
-		brightness := grayColor.Y
+		brightness := float64(grayColor.Y) / 255
 
-		// Determine the dot radius based on brightness (darker areas get larger dots)
-		maxRadius := minDist / 2.5
-		dotRadius := (255 - float64(brightness)) / 255 * maxRadius
-
-		if dotRadius > 0 {
+		// Only draw the dot if a random number is greater than the brightness
+		if rand.Float64() > brightness {
 			// Generate random rotation and scaling factors
 			rotation := rand.Float64() * 2 * math.Pi
 			xScale := 0.9 + rand.Float64()*0.2
