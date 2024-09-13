@@ -61,9 +61,6 @@ func main() {
 	// Create PNG output
 	writePNG(dots)
 
-	// Generate the stippled image
-	writeStippledImage()
-
 	// Generate the stippled SVG image
 	writeStippledSVG()
 }
@@ -143,65 +140,6 @@ func writePNG(dots []Dot) {
 	}
 
 	dc.SavePNG("output.png")
-}
-
-func writeStippledImage() {
-	// Open the source grayscale image
-	imgFile, err := os.Open("output.png") // Replace with your image file
-	if err != nil {
-		fmt.Println("Error opening image:", err)
-		return
-	}
-	defer imgFile.Close()
-
-	img, err := png.Decode(imgFile)
-	if err != nil {
-		fmt.Println("Error decoding image:", err)
-		return
-	}
-
-	bounds := img.Bounds()
-	width := bounds.Dx()
-	height := bounds.Dy()
-
-	dc := gg.NewContext(width, height)
-
-	// Set background to white
-	dc.SetRGB(1, 1, 1)
-	dc.Clear()
-
-	// Set dot color to black
-	dc.SetRGB(0, 0, 0)
-
-	// Parameters for Poisson Disk Sampling
-	minDist := 8.0 // Increased from 5.0 to 8.0
-	k := 30        // Limit of samples before rejection
-
-	// Generate points using Poisson Disk Sampling
-	points := poissonDiskSampling(width, height, minDist, k)
-
-	// For each point, determine the dot radius based on image brightness
-	for _, p := range points {
-		x, y := int(p.X), int(p.Y)
-		if x < bounds.Min.X || x >= bounds.Max.X || y < bounds.Min.Y || y >= bounds.Max.Y {
-			continue
-		}
-		grayColor := color.GrayModel.Convert(img.At(x, y)).(color.Gray)
-		brightness := grayColor.Y
-
-		// Determine the dot radius based on brightness (darker areas get larger dots)
-		maxRadius := minDist / 2
-		dotRadius := (255 - float64(brightness)) / 255 * maxRadius
-		dotRadius *= 0.8 // Reduce the radius to 90% of its original size
-
-		if dotRadius > 0 {
-			dc.DrawCircle(p.X, p.Y, dotRadius)
-			dc.Fill()
-		}
-	}
-
-	// Save the stippled image
-	dc.SavePNG("stippled_output.png")
 }
 
 // Helper struct to represent 2D points
@@ -323,8 +261,8 @@ func writeStippledSVG() {
 	svgFile.WriteString(`<rect width="100%" height="100%" fill="white"/>`)
 
 	// Parameters for Poisson Disk Sampling
-	minDist := 8.0 // Increased from 5.0 to 8.0
-	k := 30        // Limit of samples before rejection
+	minDist := 8.0
+	k := 30
 
 	// Generate points using Poisson Disk Sampling
 	points := poissonDiskSampling(width, height, minDist, k)
@@ -339,13 +277,20 @@ func writeStippledSVG() {
 		brightness := grayColor.Y
 
 		// Determine the dot radius based on brightness (darker areas get larger dots)
-		maxRadius := minDist / 2
+		maxRadius := minDist / 2.5
 		dotRadius := (255 - float64(brightness)) / 255 * maxRadius
-		dotRadius *= 0.9 // Reduce the radius to 90% of its original size
 
 		if dotRadius > 0 {
-			// Write a circle element for each dot
-			svgFile.WriteString(fmt.Sprintf(`<circle cx="%f" cy="%f" r="%f" fill="black"/>`, p.X, p.Y, dotRadius))
+			// Generate random rotation and scaling factors
+			rotation := rand.Float64() * 2 * math.Pi
+			xScale := 0.9 + rand.Float64()*0.2
+			yScale := 0.9 + rand.Float64()*0.2
+
+			// Write an ellipse element with rotation for each dot
+			svgFile.WriteString(fmt.Sprintf(`<g transform="rotate(%f %f %f)">`, rotation*180/math.Pi, p.X, p.Y))
+			svgFile.WriteString(fmt.Sprintf(`<ellipse cx="%f" cy="%f" rx="%f" ry="%f" fill="black"/>`,
+				p.X, p.Y, dotRadius*xScale, dotRadius*yScale))
+			svgFile.WriteString(`</g>`)
 		}
 	}
 

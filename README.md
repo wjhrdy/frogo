@@ -6,18 +6,18 @@ Frogo is a Go-based application that generates a set of dots and applies forces 
 
 This tool only gives you 2 stages to create this effect.
 
-![Frogo](./assets/output.png)
+![Frogo](./assets/output.svg)
 
-![Frogo](./assets/stippled_output.png)
+![Frogo](./assets/stippled_output.svg)
 
 The first stage is to generate the dots and apply forces to them to create a visually appealing distribution.
 The second stage approximates the dots with stipples to create a realistic glass frog pattern.
 
-Another tool called [stipplegen](https://github.com/evil-mad/stipplegen/) can be used to generate the final output.
+Another tool called [stipplegen](https://github.com/evil-mad/stipplegen/) can be used to generate the final output from the first stage.
 
 ![Stipplegen output](./assets/frogo_filled.jpg)
 
-The cool thing about using stipplegen is that you can then print this final design on a pen plotter.
+The cool thing about using stipplegen is that you can then draw this final design on a pen plotter.
 
 Or you can use it to create a realistic glass frog pattern.
 
